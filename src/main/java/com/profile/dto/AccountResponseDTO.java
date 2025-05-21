@@ -15,20 +15,8 @@ public class AccountResponseDTO {
     }
 
     // Getters
-    public Long getIdUser() {
-        return idUser;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
+    public Long getIdUser() { return idUser; }
+    public String getName() { return name; }
+    public Integer getAge() { return age; }
+    public String getEmail() { return email; }
 }
