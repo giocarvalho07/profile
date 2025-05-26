@@ -5,30 +5,47 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 @Component
-public class JwtTokenProvider{
+public class JwtTokenProvider {
 
-    @Value("${jwt.secret}")
+    // A chave secreta será gerada dinamicamente, não mais lida do application.properties
     private String jwtSecret;
 
     @Value("${jwt.expiration}")
     private long jwtExpirationInMs;
 
+    // Método que será executado APÓS a injeção de dependências e antes da primeira utilização do bean
+    @PostConstruct
+    public void init() {
+        // Gera uma chave segura para HS256 (256 bits)
+        byte[] keyBytes = Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded();
+        this.jwtSecret = Base64.getEncoder().encodeToString(keyBytes);
+        System.out.println("----------------------------------------------------------------------------------");
+        System.out.println("CHAVE JWT SECRETA GERADA DINAMICAMENTE (APENAS PARA DESENVOLVIMENTO): " + this.jwtSecret);
+        System.out.println("----------------------------------------------------------------------------------");
+        // Em produção, você DEVE carregar essa chave de uma variável de ambiente segura ou de um vault.
+    }
+
+    private Key getSignKey() {
+        // Agora, 'jwtSecret' já estará populado pelo método init()
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        // Você pode adicionar mais claims aqui, como roles, idUser, etc., se precisar acessá-los diretamente do token
-        // sem ter que carregar o usuário do banco em cada requisição.
-        // Ex: if (userDetails instanceof AccountUserDetails) { claims.put("idUser", ((AccountUserDetails) userDetails).getAccount().getIdUser()); }
         return createToken(claims, userDetails.getUsername());
     }
 
@@ -40,11 +57,6 @@ public class JwtTokenProvider{
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractUsername(String token) {
