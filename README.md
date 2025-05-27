@@ -9,7 +9,7 @@
 
 Uma API RESTful para gerenciamento de perfis de usuário, incluindo operações CRUD (Create, Read, Update, Delete) para contas e perfis, autenticação via JSON Web Tokens (JWT) e integração com Spring Security. Utiliza o banco de dados em memória H2 para desenvolvimento e facilita a interação com a API através do Swagger UI.
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 * **Spring Boot:** Framework para construção de aplicações Spring.
 * **Spring Security:** Framework robusto para segurança e autenticação/autorização.
@@ -21,7 +21,7 @@ Uma API RESTful para gerenciamento de perfis de usuário, incluindo operações 
 * **Maven:** Ferramenta de automação de build e gerenciamento de dependências.
 * **Java 17:** Linguagem de programação.
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 * **Autenticação de Usuário:** Login via email para obter um token JWT.
 * **Gerenciamento de Contas:**
@@ -37,7 +37,7 @@ Uma API RESTful para gerenciamento de perfis de usuário, incluindo operações 
 * **CORS (Cross-Origin Resource Sharing):** Configurado para permitir requisições de diferentes origens (ex: frontend em `localhost:3000`).
 * **Documentação Interativa:** Swagger UI para explorar e testar os endpoints da API.
 
-## ⚙️ Configuração e Execução (Ambiente de Desenvolvimento)
+## Configuração e Execução (Ambiente de Desenvolvimento)
 
 ### Pré-requisitos
 
@@ -100,7 +100,7 @@ Uma API RESTful para gerenciamento de perfis de usuário, incluindo operações 
 
     A aplicação estará disponível em `http://localhost:8080`.
 
-## 🧪 Testando a API
+## Testando a API
 
 ### 1. Documentação Interativa (Swagger UI)
 
@@ -148,12 +148,5 @@ Siga este fluxo para testar os endpoints protegidos:
         * `Authorization`: `Bearer SEU_TOKEN_AQUI` (Substitua `SEU_TOKEN_AQUI` pelo token copiado no passo anterior).
     * **Resposta:** `200 OK` com a lista de contas.
 
-## 🤝 Contribuição
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
-
-## 📄 Licença
-
-Este projeto está licenciado sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
 
 ---
