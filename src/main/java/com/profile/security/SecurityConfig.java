@@ -28,7 +28,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthFilter; // Voltou a ser o tipo específico
+    private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter, UserDetailsService userDetailsService) {
@@ -39,23 +39,36 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable) // Desabilita CSRF para APIs REST sem sessão
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configura CORS
+
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // DEFINITIVAMENTE PÚBLICO: Rotas de Autenticação e Criação de Conta
+                        // Permitir POST para /api/accounts (registro de usuário)
                         .requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
-                        .anyRequest().authenticated()
+                        // Permitir qualquer requisição para /api/auth/** (login)
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // ROTAS DE DOCUMENTAÇÃO (SWAGGER/OPENAPI) - ADICIONADAS AQUI
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
+                        // TEMPORARIAMENTE PARA TESTE: LIBERE TUDO O RESTO
+                        // Uma vez que as rotas acima funcionem, você vai mudar para:
+                        // .anyRequest().authenticated()
+                        .anyRequest().permitAll() // <<--- MUDANÇA TEMPORÁRIA AQUI!!!
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Sem sessão (JWT)
                 )
-                .authenticationProvider(authenticationProvider())
-                // Adicione um cast explícito para Filter aqui:
-                .addFilterBefore((Filter) jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); // <--- AJUSTE AQUI
+                .authenticationProvider(authenticationProvider()) // Define o provedor de autenticação
+                .addFilterBefore((Filter) jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); // Adiciona o filtro JWT
 
         return http.build();
     }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();
@@ -77,9 +90,10 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://your-frontend-domain.com"));
+        // Permita origins que você usa para testar
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("*")); // Permite todos os headers, incluindo Authorization
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

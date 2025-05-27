@@ -28,7 +28,6 @@ public class AuthController {
         this.authService = authService;
     }
 
-
     @Operation(summary = "Realiza login por e-mail",
             description = "Autentica um usuário usando o e-mail e retorna um token JWT para acesso às APIs protegidas.",
             responses = {

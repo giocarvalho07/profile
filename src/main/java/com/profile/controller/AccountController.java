@@ -26,14 +26,13 @@ public class AccountController {
     }
 
 
-
     @Operation(summary = "Cria uma nova conta",
-            description = "Registra uma nova conta de usuário no sistema.",
+            description = "Registra uma nova conta de usuário no sistema. Não requer autenticação.",
             responses = {
                     @ApiResponse(responseCode = "201", description = "Conta criada com sucesso",
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = AccountResponseDTO.class))),
-                    @ApiResponse(responseCode = "400", description = "Requisição inválida ou e-mail já registrado")
+                    @ApiResponse(responseCode = "400", description = "Requisição inválida (e.g., e-mail já registrado, dados faltando)")
             })
     @PostMapping // CREATE: Mapeia requisições POST para /api/accounts
     public ResponseEntity<AccountResponseDTO> createAccount(@Valid @RequestBody AccountRequestDTO accountDTO) {
@@ -47,8 +46,6 @@ public class AccountController {
         }
     }
 
-
-
     @Operation(summary = "Lista todas as contas",
             description = "Retorna uma lista de todas as contas registradas. Requer autenticação JWT.",
             responses = {
@@ -58,12 +55,12 @@ public class AccountController {
                     @ApiResponse(responseCode = "401", description = "Não autorizado, token JWT ausente ou inválido"),
                     @ApiResponse(responseCode = "403", description = "Acesso proibido (se houver regras de autorização mais complexas)")
             })
+
     @GetMapping // READ ALL: Mapeia requisições GET para /api/accounts
     public ResponseEntity<List<AccountResponseDTO>> getAllAccounts() {
         List<AccountResponseDTO> accounts = accountService.getAllAccounts();
         return new ResponseEntity<>(accounts, HttpStatus.OK); // Retorna 200 OK
     }
-
 
 
     @Operation(summary = "Obtém uma conta por ID",
@@ -76,13 +73,13 @@ public class AccountController {
                     @ApiResponse(responseCode = "401", description = "Não autorizado, token JWT ausente ou inválido"),
                     @ApiResponse(responseCode = "403", description = "Acesso proibido")
             })
+
     @GetMapping("/{id}") // READ ONE: Mapeia requisições GET para /api/accounts/{id}
     public ResponseEntity<AccountResponseDTO> getAccountById(@PathVariable Long id) {
         return accountService.getAccountById(id)
                 .map(account -> new ResponseEntity<>(account, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
 
 
     @Operation(summary = "Atualiza uma conta existente",
